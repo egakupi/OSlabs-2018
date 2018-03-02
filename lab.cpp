@@ -5,32 +5,51 @@
 
 using namespace std;
 
-bool flag1 = true;
-bool flag2 = true;
-
 void* funcThread1(void* args) {
-    while (flag1) {
-        cout << '1';
-        usleep(1000);
+    cout << "\nThe First thread started. . .\n";
+    int arg = *((int*) args);
+
+    while (*(bool*)args) {
+        cout << '1' << flush;
+        sleep(1);
     }
+    pthread_exit((void*)150);
 }
 
 void* funcThread2(void* args) {
-    while (flag2) {
-        cout << '2';
-        usleep(1000);
+    cout << "The Second thread started. . .\n";
+    int arg = *((int*) args);
+    
+    while (*(bool*) args) {
+        cout << '2' << flush;
+        sleep(1);
     }
+    pthread_exit((void*)10);
 }
 
 int main() {
     pthread_t thr1;
+    int statusThr1 = 1;
+    bool flag1 = true;
+    
     pthread_t thr2;
-    pthread_create(&thr1, NULL, funcThread1, NULL);
-    pthread_create(&thr2, NULL, funcThread2, NULL);
+    int statusThr2 = 1;
+    bool flag2 = true;
+    
+    
+    pthread_create(&thr1, NULL, funcThread1, &flag1);
+    
+    pthread_create(&thr2, NULL, funcThread2, &flag2);
+
+    cout << "Press any key (ENTERR) to stop it\n\n";
+    
     getchar();
-    flag1 = false;
-    flag2 = false;
-    pthread_join(thr1, NULL);
-    pthread_join(thr2, NULL);
+    flag1 = 0;
+    flag2 = 0;
+    pthread_join(thr1, (void**)&statusThr1);
+    pthread_join(thr2, (void**)&statusThr2);
+    cout << "\nThe First thread ended with " << statusThr1 << " code";
+    cout << "\nThe Second thread ended with " << statusThr2 << " code"; 
+    cout << "\nEnd of this shit\n";
     return 0;
 }
