@@ -3,7 +3,7 @@
 #include <pthread.h>
 #include <cstdio>
 #include <string.h>
-#include <stdlib.h> // for random
+#include <fcntl.h>
 
 using namespace std;
 
@@ -21,8 +21,8 @@ void* funcThread1(void* args) { //writer
     char buf = 'A';
 
     while (arg->flag) {
-        write(fd[1], &buf, 1);
-        cout << "Writer = " << buf << endl;
+        //write(fd[1], &buf, 1);
+        //cout << "Writer = " << buf << endl;
         if (buf == 'Z') {
             buf = 'A' - 1;
         }
@@ -41,9 +41,14 @@ void* funcThread2(void* args) { //reader
 
     while (arg->flag) {
         memset(&buf, '\0', sizeof(char));
-        read(fd[0], &buf, 1);
+        int rc = read(fd[0], &buf, 1);
+        if (rc == -1) {
+            perror("read");
+            usleep(1000000);
+            continue;            
+        }
         cout << "Reader = " << buf << endl;    
-        usleep(100);
+        usleep(1000000);
     }
 
     pthread_exit((void*)10);
@@ -60,6 +65,8 @@ int main() {
     arg.flag = true;
 
     pipe(fd);
+
+    fcntl(fd[0], F_SETFL, O_NONBLOCK);
 
     pthread_mutex_init(&arg.mutex, NULL);
 
