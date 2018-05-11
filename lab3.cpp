@@ -21,13 +21,13 @@ void* funcThread1(void* args) { //writer
     char buf = 'A';
 
     while (arg->flag) {
-        //write(fd[1], &buf, 1);
-        //cout << "Writer = " << buf << endl;
+        write(fd[1], &buf, 1);
+        cout << "Writer = " << buf << endl;
         if (buf == 'Z') {
             buf = 'A' - 1;
         }
         buf++;
-        usleep(100);
+        usleep(1000000);
     }
 
     pthread_exit((void*)150);
@@ -43,7 +43,7 @@ void* funcThread2(void* args) { //reader
         memset(&buf, '\0', sizeof(char));
         int rc = read(fd[0], &buf, 1);
         if (rc == -1) {
-            perror("read");
+            //perror("read");
             usleep(1000000);
             continue;            
         }
@@ -82,7 +82,7 @@ int main() {
     pthread_mutex_destroy(&arg.mutex);
 
     cout << "\nThe First thread ended with " << statusThr1 << " code";
-    cout << "\nThe Second thread ended with " << statusThr2 << " code";
-    cout << "\nEnd of this shit\n";
+    cout << "\nThe Second thread ended with " << statusThr2 << " code\n";
+    //cout << "\nEnd of this shit\n";
     return 0;
 }
